@@ -1,0 +1,82 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Aug 22 09:53:12 2024
+
+@author: acsan
+"""
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Step 1: Read data from Excel
+file_path = 'E:\materials engineering\mm551\lab\EXcel\Lab1B data.xlsx'  # Update with your actual file path
+data = pd.read_excel(file_path)
+
+# Assuming the columns in Excel are 'X' and 'Y'
+X = data['X'].values
+Y = data['Y'].values
+
+# Step 2: Gradient Descent function with separate learning rates for m and b
+def gradient_descent(X, Y, learning_rate_m=0.0003, learning_rate_b=0.006, epochs=1000):
+    m = 10  # initial slope
+    b = 150  # initial intercept
+    n = float(len(X))  # number of data points
+
+    m_values = []  # to store slope values during each epoch
+    b_values = []  # to store intercept values during each epoch
+    error_values = []  # to store error values during each epoch
+
+    for i in range(epochs):
+        Y_pred = (m * X) + b  # predicted Y
+        D_m = (-2/n) * np.sum(X * (Y - Y_pred))  # derivative with respect to m
+        D_b = (-2/n) * np.sum(Y - Y_pred)        # derivative with respect to b
+        m = m - learning_rate_m * D_m  # update m with learning_rate_m
+        b = b - learning_rate_b * D_b  # update b with learning_rate_b
+
+        # Calculate Mean Squared Error (MSE)
+        error = np.mean((Y_pred - Y) ** 2)
+       # if error > error_pre:
+        #    break
+        #learning_rate_m /= 10
+        #learning_rate_b /= 10
+
+        # Store values for plotting
+        m_values.append(m)
+        b_values.append(b)
+        error_values.append(error)
+
+        if i % 100 == 0:
+            print(f'Epoch {i}: Slope (m) = {m}, Intercept (b) = {b}, Error = {error}')
+
+    return m_values, b_values, error_values
+
+# Step 3: Run Gradient Descent with different learning rates for m and b
+learning_rate_m = 0.0003  # Learning rate for slope
+learning_rate_b = 0.006  # Learning rate for intercept
+epochs = 1000
+m_values, b_values, error_values = gradient_descent(X, Y, learning_rate_m, learning_rate_b, epochs)
+
+# Step 4: Plotting the results
+plt.figure(figsize=(14, 6))
+
+# Plot for slope vs. error
+plt.subplot(1, 2, 1)
+plt.plot(error_values, m_values, color='b')
+plt.title('Slope (m) vs. Error')
+plt.xlabel('Error')
+plt.ylabel('Slope (m)')
+
+# Plot for intercept vs. error
+plt.subplot(1, 2, 2)
+plt.plot(error_values, b_values, color='r')
+plt.title('Y-Intercept (b) vs. Error')
+plt.xlabel('Error')
+plt.ylabel('Intercept (b)')
+
+plt.tight_layout()
+plt.show()
+
+# Final results
+print(f'Final Slope (m): {m_values[-1]}')
+print(f'Final Intercept (b): {b_values[-1]}')
